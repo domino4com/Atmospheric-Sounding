@@ -1,10 +1,12 @@
-import serial
+import serial  # pip install pyserial
 import traceback
 import logging
 import sys
 import operator
 from functools import reduce
 import signal
+import locale
+locale.setlocale(locale.LC_NUMERIC, "en_US")
 
 
 def handler(signum, frame):
@@ -16,7 +18,8 @@ signal.signal(signal.SIGINT, handler)
 
 ser = serial.Serial(sys.argv[1], 115200)
 
-csvline = ""
+nmea = {'MAXIQ': False, 'GPGGA': False, 'GPVTG': False, 'PQVEL': False}
+data = {}
 
 while True:
     try:
@@ -32,9 +35,15 @@ while True:
         if int(cksum, 16) == calc_cksum:
             # Lora: https://lora.readthedocs.io/en/latest/
             # print(rssi,snr) # print RSSI and SNR rssi=-60 is good, rssi=-120 is weak, snr=10 is good,  snr=-20 is bad
-            if nmeadata.startswith("GPGGA"):
-                _, time, _, _, _, _, q, sats, hdop, alt, * \
-                    rest = csvline.split(',')
+            nmea[nmeadata[0:5]] = True
+            data[nmeadata[0:5]] = nmeadata
+            if all(nmea.values()):
+                nmea = {'MAXIQ': False, 'GPGGA': False,
+                        'GPVTG': False, 'PQVEL': False}
+                _, time, _, _, _, _, q, sats, hdop, alt, *rest = data['GPGGA'].split(
+                    ',')
+                _, temp, pres, altb = data['MAXIQ'].split(',')
+                _, CoG, _, _, _, SoGn, _, SoGk, *vtg = data['GPVTG'].split(',')
                 if q == "0":
                     qs = "Fix not available or invalid - DO NOT LAUNCH"
                 elif q == "1":
@@ -53,16 +62,15 @@ while True:
                     qs = "Unknown"
                 if qs != "Unknown":
                     f = open(sys.argv[2], "a")
-                    f.write(csvline+'\n')
+                    f.write(data['GPGGA']+','+data['GPVTG']+',' +
+                            data['PQVEL']+','+data['MAXIQ']+','+rssi+','+snr+'\n')
                     f.close()
-                print("Time:"+time[0:2]+":"+time[2:4]+":"+time[4:6], "Q:"+q,
-                      "Sats#:"+sats, "HDOP:"+hdop, "Alt:"+alt, "RSSI:"+rssi, "SNR:"+snr, qs)
-                csvline = nmeadata
-            else:
-                csvline = csvline + "," + nmeadata
+                    data.clear()
+                print("Time:"+time[0:2]+":"+time[2:4]+":"+time[4:6], "Alt:"+alt, "Wind:"+CoG+"º/"+SoGk+"kph", "Q:"+q,
+                      "Sats#:"+sats, "HDOP:"+hdop, "RSSI:", int(locale.atof(rssi)), "SNR:"+snr, qs)
+
         else:
             print("Checksum error: " + nmeadata)
     except Exception as e:
         logging.error(traceback.format_exc())
         print("Error: " + nmeadata)
-
