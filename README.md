@@ -15,6 +15,8 @@ This is a quick little project involving a flight station (FS), which has a GNSS
 
 Firmware in the FS folder.
 
+---
+
 <img src="assets/gs.jpg" width=400 align="left">
 
 ## Ground Station
