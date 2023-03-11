@@ -10,9 +10,11 @@ This is a quick little project involving a flight station (FS), which has a GNSS
 * Radio: [EL4](https://github.com/domino4com/ELx)
 * GNSS:  [INA](https://github.com/domino4com/INA)
 * Barometer: [IWB](https://github.com/domino4com/IWB)
+* Power: PLB
 
 Firmware in the FS folder.
 
+===
 
 ## Ground Station
 
@@ -27,5 +29,6 @@ Firmware in the GS folder.
 
 ### Python Program
 This program, makecsv.py, just reads the data from the serial port and makes a .csv file. 
+Install **pyserial** first: `pip install pyserial`
 
 Usage: `python makecsv.py <serial-port> <csv file>`
