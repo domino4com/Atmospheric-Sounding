@@ -14,7 +14,7 @@ This is a quick little project involving a flight station (FS), which has a GNSS
 
 Firmware in the FS folder.
 
-===
+---
 
 ## Ground Station
 
