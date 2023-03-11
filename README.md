@@ -17,7 +17,9 @@ Firmware in the FS folder.
 
 ---
 
-<img src="assets/gs.jpg" width=400 align="left">
+---
+
+<img src="assets/gs.jpg" width=400 align="right">
 
 ## Ground Station
 
