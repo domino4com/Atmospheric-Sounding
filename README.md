@@ -14,12 +14,12 @@ This is a quick little project involving a flight station (FS), which has a GNSS
 
 Firmware in the FS folder.
 
----
+<img src="assets/gs.jpg" width=400 align="left">
 
 ## Ground Station
 
 ### Components
-<img src="assets/gs.jpg" width=400 align="right">
+
 
 * Core:  [CWV](https://github.com/domino4com/CWV) 
 * Radio: [EL4](https://github.com/domino4com/ELx)
