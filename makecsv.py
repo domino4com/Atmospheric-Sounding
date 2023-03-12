@@ -8,7 +8,7 @@ from functools import reduce
 
 import serial  # pip install pyserial
 
-locale.setlocale(locale.LC_NUMERIC, "en_US")
+locale.setlocale(locale.LC_NUMERIC, "POSIX")
 
 
 def handler(signum, frame):
