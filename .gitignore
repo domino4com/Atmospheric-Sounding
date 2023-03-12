@@ -33,3 +33,5 @@
 
 *.csv
 *.DS_Store
+.ruff_cache
+*.kml

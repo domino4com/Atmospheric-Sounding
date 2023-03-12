@@ -6,11 +6,11 @@ License: MIT
 Send data like this to a ground station:                    
 $GPVTG,224.50,T,,M,0.00,N,0.00,K,A*3C                                           
 $GPGGA,075330.000,3411.8889,S,01822.7103,E,1,12,0.85,96.6,M,32.4,M,,*4B         
-$MAXIQ,24.79,1005.24,66.89*45                                                   
+$PDIWB,24.79,1005.24,66.89*45                                                   
 $PQVEL,-0.088864,-0.013409,0.052223*6D                                          
 
 The GPCGA is UTC Time, Lat, Lon, Quality, No of Sats, HDOP, and Altitude in meters.
-The MAXIQ is my own sentence, with Temperature in ºC, Pressure in hPa (or mb), and QNE Altitude in meters, coming from a pressure sensor (IWB) not related to the GPS.
+The PDIWB is my own sentence, with Temperature in ºC, Pressure in hPa (or mb), and QNE Altitude in meters, coming from a pressure sensor (IWB) not related to the GPS.
 The PQVEL is North/South velocity, East/West velocity, and Down/Up Velocity in +/- m/s
 The GPVTG is True Course over Ground (aka Wind direction), Magnetic Course over Ground (N/A), Speed over Ground in kNots (aka Wind Speed) and Speed over Ground in Kph
 */
@@ -55,23 +55,27 @@ void setup() {
 
   // Create a command telling the GPS that we only want GGA and VTG of the standard NMEA 0183 sentences
   s = addCheckSumCRLF("$PMTK314,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+
   s.toCharArray(buf, s.length() + 1);
-  ESP_LOGI("FS", "%.1f: Setting: %s", millis(), buf);
+   ESP_LOGD("FS", "GPS.begin done+++");
+  // ESP_LOGI("FS", "%.1f: Setting: %s", millis(), buf);
+  ESP_LOGD("FS", "GPS.sendCommand next");
   GPS.sendCommand(buf);
+  ESP_LOGD("FS", "GPS.sendCommand done");
   delay(1000);
 
   // Send data every second
-  ESP_LOGI("FS", "%.1f: Setting: %s", millis(), PMTK_SET_NMEA_UPDATE_1HZ);
+  // ESP_LOGI("FS", "%.1f: Setting: %s", millis(), PMTK_SET_NMEA_UPDATE_1HZ);
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
   delay(1000);
 
   // Tell the GPS to go into balloon mode, it will then operate until 80km
-  ESP_LOGI("FS", "%.1f: Setting: %s", millis(), "$PMTK886,3*2B");
+  // ESP_LOGI("FS", "%.1f: Setting: %s", millis(), "$PMTK886,3*2B");
   GPS.sendCommand("$PMTK886,3*2B");
   delay(1000);
 
   // Tell the GPS to send velocities, special for this GPS
-  ESP_LOGI("FS", "%.1f: Setting: %s", millis(), "$PQVEL,W,1,1*25");
+  // ESP_LOGI("FS", "%.1f: Setting: %s", millis(), "$PQVEL,W,1,1*25");
   GPS.sendCommand("$PQVEL,W,1,1*25");
   delay(1000);
 
@@ -90,7 +94,7 @@ void setup() {
 }
 
 void downlink(String s) {
-  ESP_LOGI("FS", "%.1f: %s", millis(), s);
+  // ESP_LOGI("FS", "%.1f: %s", millis(), s);
   radio.transmit(s);
 }
 
@@ -105,7 +109,7 @@ void loop() {
 
     if (savec == '$' && c == 'P') {  // If we are about to build the $PQVEL, then just push this out first
       // Create our own sentence with temperature, pressure and QNE Altitude (Flight level,but in meters)
-      downlink(addCheckSumCRLF("$MAXIQ," + String(get_temp_c()) + "," + String(get_pressure()) + "," + String(get_altitude(get_pressure(), standard_pressure))));
+      downlink(addCheckSumCRLF("$PDOMW," + String(get_temp_c()) + "," + String(get_pressure()) + "," + String(get_altitude(get_pressure(), standard_pressure))));
       s = "$P";
     }
 
